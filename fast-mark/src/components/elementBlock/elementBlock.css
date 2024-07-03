@@ -1,0 +1,36 @@
+.element-block {
+    width: 300px;
+    height: 100px;
+    border: 3px;
+    border-color: brown;
+    position: absolute;
+    display: flex;
+}
+
+.content-element {
+    background-color: aqua;
+    display: inline-block;
+}
+
+
+.left-up-point {
+    left: 0;
+    top: 0;
+}
+.right-up-point {
+    right: 0;
+    top: 0;
+}
+.left-buttom-point {
+    left: 0;
+    bottom: 0;
+}
+.right-buttom-point {
+    right: 0;
+    bottom: 0;
+}
+
+input {
+    background-color: none;
+    appearance: none;    
+}
