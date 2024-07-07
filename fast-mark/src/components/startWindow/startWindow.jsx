@@ -27,6 +27,19 @@ export default function StartWindow({setImageURL, setWindowType}) {
             return
         }
 
+        axios.post(`${baseURL}/upload-image`, {
+            'file': image,
+            'project_name': projectName,
+        }, {
+            headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`,
+            },
+        }).catch((e) => {
+            console.log(e)
+        }).then((response) => {
+            console.log("YEEE")
+        })
 
         axios.post(`${baseURL}/upload-table`, {
             'file': table,
@@ -43,8 +56,18 @@ export default function StartWindow({setImageURL, setWindowType}) {
         })
     }, [isRequest]);
 
-    function onUploadImage(url) {
-        setImageURL(url)
+    function onUploadImage(event) {
+        if (! event.target.files) {
+            return;
+        }
+
+        const extension = event.target.files[0].name.split(".")[1];
+        console.log(extension)
+        if (extension !== 'img' || extension !== 'jpeg' || extension !== 'png') {
+            return;
+        }
+        image.current = event.target.files[0]
+        setImageURL(URL.createObjectURL(image.current))
         isImageUploaded.current = true
     //     TODO: а как мне отправить фон????
     }
@@ -69,10 +92,12 @@ export default function StartWindow({setImageURL, setWindowType}) {
         if (!isImageUploaded || !isTableUploaded || projectName=="") {
             return
         }
+
         // TODO: сделать так, чтобы после нажатия на кнопку нельзя было изменять имя проекта
         // TODO: сделть обработку нажатия enter
 
         console.log("start project")
+        localStorage.setItem("project-name", projectName)
         setIsRequest(true)
     }
 
@@ -127,7 +152,19 @@ export default function StartWindow({setImageURL, setWindowType}) {
                 <Grid item>
                     <div style={{display: "flex", flexDirection: "column"}}>
 
-                        <ImageUpload setImageURL={onUploadImage}>Upload Image</ImageUpload>
+                        <Button
+                            component="label"
+                            role={undefined}
+                            variant="contained"
+                            color={"secondary"}
+                            tabIndex={-1}
+                            startIcon={<CloudUploadIcon/>}
+                        >
+                            Upload table
+                            <input hidden accept="*" type="file" onChange={onUploadImage}/>
+                            <VisuallyHiddenInput type="file"/>
+                        </Button>
+
 
                         <div className="start-window__warning">
                             <h2 className="start-window__warning-title">{userWarning}</h2>
