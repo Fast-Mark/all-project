@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react"
 import { WorkWindowType } from "../../const/windowTypes"
 import ImageUpload from "../imageUpload"
-import {Typography, Icon, Container, Grid, Input} from "@mui/material"
+import {Typography, Icon, Container, Grid, Input, Alert, Snackbar} from "@mui/material"
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -12,9 +12,12 @@ import {baseURL} from "../../const/endpoints.js";
 
 
 export default function StartWindow({setImageURL, setWindowType}) {
-    const [userWarning, setWarning] = useState(null)
+    const [userWarning, setWarning] = useState("")
+    const [openAlert, setOpenAlert] = useState(false)
     const [projectName, setProjectName] = useState("")
     const [isRequest, setIsRequest] = useState(false)
+    const [imageUploaderColor, setImageUploaderColor] = useState("secondary")
+    const [tableUploaderColor, setTableUploaderColor] = useState("secondary")
 
     const isTableUploaded = useRef(false)
     const isImageUploaded = useRef(false)
@@ -64,12 +67,19 @@ export default function StartWindow({setImageURL, setWindowType}) {
         const extension = event.target.files[0].name.split(".")[1];
         console.log(extension)
         if (extension !== 'img' || extension !== 'jpeg' || extension !== 'png') {
+            setImageUploaderColor("error")
+            setWarning(
+                "Неподдерживаемый тип файла для изображения!"
+            )
+            setOpenAlert(true)
             return;
         }
         image.current = event.target.files[0]
+
         setImageURL(URL.createObjectURL(image.current))
         isImageUploaded.current = true
-    //     TODO: а как мне отправить фон????
+        setImageUploaderColor("success")
+
     }
 
     function onUploadTable(event) {
@@ -80,12 +90,17 @@ export default function StartWindow({setImageURL, setWindowType}) {
         const extension = event.target.files[0].name.split(".")[1];
         console.log(extension)
         if (extension !== 'xlsx') {
+            setWarning(
+                "Неподдерживаемый тип файла для изображения!"
+            )
+            setOpenAlert(true)
+            setTableUploaderColor("error")
             return;
         }
 
         isTableUploaded.current = true
         table.current = event.target.files[0]
-
+        setTableUploaderColor("success")
     }
 
     function onHandleStartProject() {
@@ -156,25 +171,20 @@ export default function StartWindow({setImageURL, setWindowType}) {
                             component="label"
                             role={undefined}
                             variant="contained"
-                            color={"secondary"}
+                            color={imageUploaderColor}
                             tabIndex={-1}
                             startIcon={<CloudUploadIcon/>}
                         >
-                            Upload table
+                            Upload image
                             <input hidden accept="*" type="file" onChange={onUploadImage}/>
                             <VisuallyHiddenInput type="file"/>
                         </Button>
-
-
-                        <div className="start-window__warning">
-                            <h2 className="start-window__warning-title">{userWarning}</h2>
-                        </div>
 
                         <Button
                             component="label"
                             role={undefined}
                             variant="contained"
-                            color={"secondary"}
+                            color={tableUploaderColor}
                             tabIndex={-1}
                             startIcon={<CloudUploadIcon/>}
                         >
@@ -194,7 +204,7 @@ export default function StartWindow({setImageURL, setWindowType}) {
                      3 - сделать возможность загружать проект
                      */}
                         <form noValidate autoComplete={"off"}>
-                            <TextField id="standard-basic" label="project name" variant={"standard"}/>
+                            <TextField onChange={(event) => {setProjectName(event.target.value)}} id="standard-basic" label="project name" variant={"standard"}/>
                         </form>
                     </div>
                 </Grid>
@@ -206,6 +216,11 @@ export default function StartWindow({setImageURL, setWindowType}) {
                 </Grid>
                 </Grid>
             </Container>
+            <Snackbar open={openAlert} autoHideDuration={6000} onClose={() => {setError(false)}}>
+                <Alert onClose={() => {setError(false)}} severity="error">
+                    {userWarning}
+                </Alert>
+            </Snackbar>
         </>
     )
 }
