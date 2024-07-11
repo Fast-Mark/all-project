@@ -32,7 +32,6 @@ app.add_middleware(
 
 @app.get('/')
 async def create_app(current_user: Annotated[User, Depends(get_current_active_user)]):
-    # TODO: сделать редирект на стороне пользователя... А как сохранять jwt токен между страницами??? - просто передавать из "авторизован"
     # идея такая: я создам еще одну страницу, на которой будет проверяться авторизован пользователь или нет. Если да, то дам возможность
     if current_user.email is None:
         return FileResponse(os.path.join(BASE_PATH, ".venv/src/workspace/index.html"), media_type="text/html")
@@ -121,7 +120,7 @@ async def login_for_access_token(
     return Token(access_token=access_token, token_type="bearer")
 
 
-# TODO: сохранять таблицу и шрифт.
+# TODO: сохранять пользовательский шрифт.
 @app.post('/upload-table')
 async def upload_table(
         current_user: Annotated[User, Depends(get_current_active_user)], file: UploadFile, project_name: str
@@ -144,8 +143,6 @@ async def create_result(
         username, elements: ElementsList, project_name: str
 ):
     # TODO: сохранять ElementsList в бд
-    # logger = logging.getLogger("uvicorn.info")
-    # logger.warning(0, "AAAAAAAAAAAAAAAA")
     result = await print_excel_rows(username, project_name, elements)
     return result
 

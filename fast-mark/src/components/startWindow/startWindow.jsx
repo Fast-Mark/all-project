@@ -65,8 +65,7 @@ export default function StartWindow({setImageURL, setWindowType}) {
         }
 
         const extension = event.target.files[0].name.split(".")[1];
-        console.log(extension)
-        if (extension !== 'img' || extension !== 'jpeg' || extension !== 'png') {
+        if (extension !== 'img' && extension !== 'jpeg' && extension !== 'png') {
             setImageUploaderColor("error")
             setWarning(
                 "Неподдерживаемый тип файла для изображения!"
@@ -88,7 +87,6 @@ export default function StartWindow({setImageURL, setWindowType}) {
         }
 
         const extension = event.target.files[0].name.split(".")[1];
-        console.log(extension)
         if (extension !== 'xlsx') {
             setWarning(
                 "Неподдерживаемый тип файла для изображения!"
@@ -104,14 +102,22 @@ export default function StartWindow({setImageURL, setWindowType}) {
     }
 
     function onHandleStartProject() {
-        if (!isImageUploaded || !isTableUploaded || projectName=="") {
-            return
+        if (!isImageUploaded ) {
+            setWarning("Вы забыли загрузить изображение для фона")
+            setOpenAlert(true)
+        } else if (!isTableUploaded) {
+            setWarning("Вы забыли загрузить таблицу с данными")
+            setOpenAlert(true)
+        } else if (projectName === "") {
+            setWarning("Вы не указали имя проекта")
+            setOpenAlert(true)
         }
 
         // TODO: сделать так, чтобы после нажатия на кнопку нельзя было изменять имя проекта
         // TODO: сделть обработку нажатия enter
 
         console.log("start project")
+        setWindowType(WorkWindowType)
         localStorage.setItem("project-name", projectName)
         setIsRequest(true)
     }
@@ -174,9 +180,10 @@ export default function StartWindow({setImageURL, setWindowType}) {
                             color={imageUploaderColor}
                             tabIndex={-1}
                             startIcon={<CloudUploadIcon/>}
+                            style={{marginBottom:"2px"}}
                         >
                             Upload image
-                            <input hidden accept="*" type="file" onChange={onUploadImage}/>
+                            <input hidden accept="image/x-png, image/jpg, image/jpeg" type="file" onChange={onUploadImage}/>
                             <VisuallyHiddenInput type="file"/>
                         </Button>
 
@@ -189,7 +196,7 @@ export default function StartWindow({setImageURL, setWindowType}) {
                             startIcon={<CloudUploadIcon/>}
                         >
                             Upload table
-                            <input hidden accept="*" type="file" onChange={onUploadTable}/>
+                            <input hidden accept=".xlxs, .xlsx" type="file" onChange={onUploadTable}/>
                             <VisuallyHiddenInput type="file"/>
                         </Button>
                     </div>
@@ -216,8 +223,8 @@ export default function StartWindow({setImageURL, setWindowType}) {
                 </Grid>
                 </Grid>
             </Container>
-            <Snackbar open={openAlert} autoHideDuration={6000} onClose={() => {setError(false)}}>
-                <Alert onClose={() => {setError(false)}} severity="error">
+            <Snackbar open={openAlert} autoHideDuration={6000} onClose={() => {setOpenAlert(false)}}>
+                <Alert onClose={() => {setOpenAlert(false)}} severity="error">
                     {userWarning}
                 </Alert>
             </Snackbar>
